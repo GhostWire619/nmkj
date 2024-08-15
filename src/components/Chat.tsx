@@ -170,7 +170,7 @@ export const Chat: React.FC<Props> = ({ room, cookie }) => {
                   <ListItemText
                     secondary={
                       <Typography variant="body2">
-                        {m.text} {/* Default alignment should now be LTR */}
+                        {m.text} {/* Default alignment should now LTR */}
                       </Typography>
                     }
                   />
