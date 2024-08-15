@@ -110,7 +110,7 @@ export const Chat: React.FC<Props> = ({ room, cookie }) => {
           height: 150,
         }}
       >
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={() => navigate(-1)} sx={{ color: "purple" }}>
           <ArrowBackIcon />
         </IconButton>
         <Typography
@@ -146,7 +146,12 @@ export const Chat: React.FC<Props> = ({ room, cookie }) => {
         {messages.map((m) => (
           <>
             {name == m.user ? (
-              <Box display="flex" justifyContent="flex-end" key={m.id}>
+              <Box
+                display="flex"
+                justifyContent="flex-end"
+                key={m.id}
+                sx={{ direction: "ltr" }} // Keep this simple
+              >
                 <ListItem
                   alignItems="flex-start"
                   sx={{
@@ -159,12 +164,13 @@ export const Chat: React.FC<Props> = ({ room, cookie }) => {
                     wordBreak: "break-word",
                     whiteSpace: "normal",
                     width: "70%",
+                    direction: "ltr", // LTR direction for ListItem
                   }}
                 >
                   <ListItemText
                     secondary={
-                      <Typography variant="body2" sx={{ textAlign: "right" }}>
-                        {m.text}
+                      <Typography variant="body2">
+                        {m.text} {/* Default alignment should now be LTR */}
                       </Typography>
                     }
                   />
