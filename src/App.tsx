@@ -5,17 +5,27 @@ import { Chat } from "./components/Chat";
 import "./App.css";
 import { useState, useRef } from "react";
 import Cookies from "universal-cookie";
+import { useCookies } from "react-cookie";
+import { Route, Routes } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Room from "./components/Room";
+import _404 from "./components/404";
+
 const cookies = new Cookies();
 
 function App() {
   const [isAuth, setIsAuth] = useState(!!cookies.get("auth-token"));
   const [room, setRoom] = useState<string | null>(null);
   const roomInputref = useRef<HTMLInputElement>(null);
-  console.log("isAuth:", isAuth); // Add this log
+  const [cookie, setCookie, removeCookie] = useCookies(["user"]);
+  console.log("isAuth:", isAuth);
+  const navigate = useNavigate(); // Add this log
   if (!isAuth) {
     return (
       <>
-        <Authentication setIsAuth={setIsAuth} />
+        <div>
+          {<Authentication setIsAuth={setIsAuth} setCookie={setCookie} />}
+        </div>
       </>
     );
   }
@@ -23,33 +33,41 @@ function App() {
   const handleClick = () => {
     if (roomInputref.current?.value) {
       setRoom(roomInputref.current.value);
+      navigate("/chat");
     }
   };
 
   const handleLogout = async () => {
     await signOut(auth);
     cookies.remove("auth-token");
+    removeCookie("user");
     setIsAuth(false);
     setRoom(null);
   };
 
   return (
     <>
-      {room ? (
-        <div>
-          <Chat room={room} />
-        </div>
-      ) : (
-        <div>
-          <label htmlFor="">enter room Name</label>
-          <input type="text" ref={roomInputref} />
-          <button onClick={handleClick}>enter chat</button>
-        </div>
-      )}
-
-      <div>
-        <button onClick={handleLogout}>logout</button>
-      </div>
+      <Routes>
+        {room ? (
+          <Route
+            path="/chat"
+            element={<Chat room={room} cookie={cookie.user} />}
+          />
+        ) : (
+          <Route path="/chat" element={<_404 />} />
+        )}
+        <Route
+          path="/"
+          element={
+            <Room
+              roomInputref={roomInputref}
+              handleClick={handleClick}
+              logout={handleLogout}
+            />
+          }
+        />
+        <Route path="*" element={<_404 />} />
+      </Routes>
     </>
   );
 }

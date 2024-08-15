@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+
+import { useNavigate } from "react-router-dom";
 import {
   addDoc,
   collection,
@@ -19,11 +21,14 @@ import {
   Typography,
   Avatar,
   Paper,
+  IconButton,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface Props {
   room: string;
+  cookie: string;
 }
 interface Message {
   text: string;
@@ -33,10 +38,11 @@ interface Message {
   id: string;
 }
 
-export const Chat: React.FC<Props> = ({ room }) => {
+export const Chat: React.FC<Props> = ({ room, cookie }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = collection(db, "messages");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const queryMessages = query(
@@ -67,38 +73,133 @@ export const Chat: React.FC<Props> = ({ room }) => {
 
     setNewMessage("");
   };
+  const name = cookie;
 
+  console.log(name);
+  console.log("yoo");
   return (
     <Box
       component={Paper}
-      elevation={3}
+      elevation={6}
       sx={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        height: "80vh",
+        height: "90vh",
         width: "100%",
-        maxWidth: "600px",
-        margin: "0 auto",
+        maxWidth: "400px",
+
         padding: 2,
         borderRadius: "12px",
+        color: "white",
+        // backgroundColor: "transparent",
+        // backgroundImage: `url(${bgimg2})`,
+        backgroundColor: "black",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      <List sx={{ flexGrow: 1, overflowY: "auto", paddingBottom: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 2,
+          backgroundColor: "transparent",
+          borderRadius: 5,
+          overflow: "hidden",
+          height: 150,
+        }}
+      >
+        <IconButton onClick={() => navigate(-1)}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, textAlign: "center", color: "purple" }}
+        >
+          Room {room}
+        </Typography>
+      </Box>
+      <List
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          paddingBottom: 2,
+          backgroundColor: "black",
+          // backgroundImage: `url(${bgimg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          "&::-webkit-scrollbar": {
+            backgroundColor: "Transparent", // Transparent track background
+            width: "4px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#444", // Color of the scrollbar thumb
+            borderRadius: "4px", // Rounded corners for the thumb
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555", // Darker color on hover
+          },
+        }}
+      >
         {messages.map((m) => (
-          <ListItem key={m.id} alignItems="flex-start">
-            <Avatar sx={{ bgcolor: "#3f51b5", marginRight: 2 }}>
-              {m.user ? m.user.charAt(0).toUpperCase() : "U"}
-            </Avatar>
-            <ListItemText
-              primary={
-                <Typography variant="body1" fontWeight="bold">
-                  {m.user || "Unknown"}
-                </Typography>
-              }
-              secondary={<Typography variant="body2">{m.text}</Typography>}
-            />
-          </ListItem>
+          <>
+            {name == m.user ? (
+              <Box display="flex" justifyContent="flex-end" key={m.id}>
+                <ListItem
+                  alignItems="flex-start"
+                  sx={{
+                    backgroundColor: "#202c33",
+                    boxShadow: "2px 2px 5px rgba(0,0,0,.6)",
+                    marginBottom: 2,
+                    borderRadius: 2,
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    whiteSpace: "normal",
+                    width: "70%",
+                  }}
+                >
+                  <ListItemText
+                    secondary={
+                      <Typography variant="body2" sx={{ textAlign: "right" }}>
+                        {m.text}
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+              </Box>
+            ) : (
+              <ListItem
+                key={m.id}
+                alignItems="flex-start"
+                sx={{
+                  boxShadow: "2px 2px 5px rgba(0,0,0,.6)",
+                  backgroundColor: "#2a2f32",
+                  marginBottom: 2,
+                  borderRadius: 2,
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  whiteSpace: "normal",
+                  width: "70%",
+                }}
+              >
+                <Avatar sx={{ bgcolor: "#3f51b5", marginRight: 2 }}>
+                  {m.user ? m.user.charAt(0).toUpperCase() : "U"}
+                </Avatar>
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" fontWeight="bold">
+                      {m.user || "Unknown"}
+                    </Typography>
+                  }
+                  secondary={<Typography variant="body2">{m.text}</Typography>}
+                />
+              </ListItem>
+            )}
+          </>
         ))}
       </List>
 
@@ -113,11 +214,29 @@ export const Chat: React.FC<Props> = ({ room }) => {
           placeholder="Type your message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          autoComplete="off"
+          sx={{
+            autoFill: "none",
+            backgroundColor: "#333333",
+            borderRadius: 5,
+            zIndex: 1,
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                border: "none", // Border color of the text field
+              },
+              "&:hover fieldset": {
+                border: "none", // Border color on hover
+              },
+              "&.Mui-focused fieldset": {
+                border: "none", // Border color when focused
+              },
+            },
+          }}
         />
         <Button
           type="submit"
           variant="contained"
-          color="primary"
+          sx={{ backgroundColor: "#445" }}
           endIcon={<SendIcon />}
         >
           Send
